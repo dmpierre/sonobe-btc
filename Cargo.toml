@@ -1,0 +1,30 @@
+[package]
+name = "folding-schemes-btc"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ark-r1cs-std = { git = "https://github.com/arnaucube/ark-r1cs-std-cherry-picked/" }
+folding-schemes = { git = "https://github.com/privacy-scaling-explorations/folding-schemes.git", package = "folding-schemes", branch="feature/decider-link-groth16-kzg" }
+ark-light-bitcoin-client = { git = "https://github.com/dmpierre/ark-light-bitcoin-client.git" }
+ark-ff = "0.4.0"
+ark-relations = "0.4.0"
+serde_json = "1.0.114"
+num-bigint = "0.4.3"
+num-traits = "0.2.15"
+hex = "0.4.3"
+hex-literal = "0.4.1"
+ark-bn254 = {version="0.4.0", features=["r1cs"]}
+ark-grumpkin = {version="0.4.0", features=["r1cs"]}
+ark-std = "0.4.0"
+ark-ec = "0.4.0"
+ark-crypto-primitives = "0.4.0"
+ark-poly-commit = "0.4.0"
+ark-groth16 = "0.4.0"
+
+[patch.crates-io]
+ark-r1cs-std = { git = "https://github.com/arnaucube/ark-r1cs-std-cherry-picked/" }
+ark-bn254 = { git = "https://github.com/arnaucube/ark-curves-cherry-picked", branch="cherry-pick"}
+ark-grumpkin = { git = "https://github.com/arnaucube/ark-curves-cherry-picked", branch="cherry-pick"}
