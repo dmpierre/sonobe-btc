@@ -1360,7 +1360,6 @@ dependencies = [
  "num-traits",
  "serde_json",
  "solidity-verifiers",
- "test-lib",
 ]
 
 [[package]]
@@ -2970,10 +2969,6 @@ dependencies = [
  "rustix",
  "windows-sys 0.52.0",
 ]
-
-[[package]]
-name = "test-lib"
-version = "0.1.0"
 
 [[package]]
 name = "textwrap"
