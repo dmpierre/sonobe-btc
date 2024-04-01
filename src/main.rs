@@ -173,9 +173,14 @@ fn main() {
 
     // decider proof verification
     println!("Verifying proof...");
-    let decider_vp = (poseidon_config, g16_vk, kzg_vk);
     let verified = DECIDER::verify(
-        decider_vp, nova.i, nova.z_0, nova.z_i, &nova.U_i, &nova.u_i, proof,
+        (g16_vk.clone(), kzg_vk.clone()),
+        nova.i,
+        nova.z_0,
+        nova.z_i,
+        &nova.U_i,
+        &nova.u_i,
+        &proof,
     )
     .unwrap();
     assert!(verified);

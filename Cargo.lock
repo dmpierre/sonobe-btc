@@ -1119,12 +1119,14 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "folding-schemes"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/folding-schemes.git?branch=feature/decider-link-groth16-kzg#86acbf212d898b7db5dbf05c4db367122d2ae88b"
+source = "git+https://github.com/privacy-scaling-explorations/folding-schemes.git?branch=feature/solidity-decider-verifier#426c6ee6dea6e76fa47811b25ce5184e34202ec1"
 dependencies = [
+ "ark-bn254",
  "ark-circom",
  "ark-crypto-primitives",
  "ark-ec",
  "ark-ff",
+ "ark-groth16",
  "ark-poly",
  "ark-poly-commit",
  "ark-r1cs-std",
