@@ -1,4 +1,5 @@
 #!/bin/bash
+# running on m7i.metal-24xl instance
 # run with `source ./setup-machine-and-run-proving.sh`
 sudo apt-get update
 sudo apt install build-essential -y

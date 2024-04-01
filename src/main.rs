@@ -11,16 +11,22 @@ use ark_light_bitcoin_client::{
 use ark_r1cs_std::{alloc::AllocVar, fields::fp::FpVar};
 use ark_relations::r1cs::{ConstraintSystemRef, SynthesisError};
 use ark_std::rand;
-use folding_schemes::Decider as DeciderTrait;
 use folding_schemes::{
     commitment::{kzg::KZG, pedersen::Pedersen},
     folding::nova::{decider_eth::Decider, Nova},
     frontend::FCircuit,
 };
+use folding_schemes::{folding::nova::decider_eth::prepare_calldata, Decider as DeciderTrait};
 use folding_schemes::{folding::nova::decider_eth_circuit::DeciderEthCircuit, FoldingScheme};
 use num_bigint::BigUint;
 use num_traits::Num;
-use std::{marker::PhantomData, time::Instant};
+use solidity_verifiers::{
+    evm::{compile_solidity, save_solidity, Evm},
+    get_decider_template_for_cyclefold_decider,
+    utils::get_function_selector_for_nova_cyclefold_verifier,
+};
+use solidity_verifiers::{Groth16Data, KzgData, NovaCyclefoldData};
+use std::{fs, marker::PhantomData, time::Instant};
 use utils::setup;
 mod utils;
 
@@ -166,7 +172,11 @@ fn main() {
     // decider proof generation
     println!("Generating proof...");
     let now = Instant::now();
-    let decider_pp = (poseidon_config.clone(), g16_pk, prover_params.cs_params);
+    let decider_pp = (
+        poseidon_config.clone(),
+        g16_pk,
+        prover_params.clone().cs_params,
+    );
     let proof = DECIDER::prove(decider_pp, rng, nova.clone()).unwrap();
     let elapsed = now.elapsed();
     println!("Proof generated in: {:.2?}", elapsed);
@@ -176,12 +186,47 @@ fn main() {
     let verified = DECIDER::verify(
         (g16_vk.clone(), kzg_vk.clone()),
         nova.i,
-        nova.z_0,
-        nova.z_i,
+        nova.z_0.clone(),
+        nova.z_i.clone(),
         &nova.U_i,
         &nova.u_i,
         &proof,
     )
     .unwrap();
     assert!(verified);
+
+    let g16_data = Groth16Data::from(g16_vk);
+    let kzg_data = KzgData::from((
+        kzg_vk,
+        Some(prover_params.cs_params.powers_of_g[0..3].to_vec()),
+    ));
+    let nova_cyclefold_data = NovaCyclefoldData::from((g16_data, kzg_data, nova.z_0.len()));
+    let function_selector =
+        get_function_selector_for_nova_cyclefold_verifier(nova.z_0.len() * 2 + 1);
+
+    let calldata: Vec<u8> = prepare_calldata(
+        function_selector,
+        nova.i,
+        nova.z_0,
+        nova.z_i,
+        &nova.U_i,
+        &nova.u_i,
+        proof,
+    )
+    .unwrap();
+
+    let decider_template = get_decider_template_for_cyclefold_decider(nova_cyclefold_data);
+    save_solidity("./NovaLightBTCClientDecider.sol", &decider_template);
+    fs::write("./solidity-calldata.calldata", calldata).unwrap();
+
+    // save calldata
+
+    // let nova_cyclefold_verifier_bytecode = compile_solidity(decider_template, "NovaDecider");
+    //
+    // let mut evm = Evm::default();
+    // let verifier_address = evm.create(nova_cyclefold_verifier_bytecode);
+    //
+    // let (_, output) = evm.call(verifier_address, calldata.clone());
+    // println!("Output: {:?}", output);
+    // assert_eq!(*output.last().unwrap(), 1);
 }
