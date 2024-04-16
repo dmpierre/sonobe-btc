@@ -135,7 +135,7 @@ dependencies = [
 [[package]]
 name = "ark-circom"
 version = "0.1.0"
-source = "git+https://github.com/gakonst/ark-circom.git#170b10fc9ed182b5f72ecf379033dda023d0bf07"
+source = "git+https://github.com/arnaucube/circom-compat.git#8b2d7915a029f4a6a9285eed3eb7322172cc64d4"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
@@ -1316,7 +1316,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "folding-schemes"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/folding-schemes.git?branch=feature/solidity-decider-verifier#a45761a395d9a9a917c5a36d8cc8cddcd9541a87"
+source = "git+https://github.com/privacy-scaling-explorations/sonobe.git?branch=feature/solidity-decider-verifier#9c68076782017b0fe205574c894cf6b3e1b5204f"
 dependencies = [
  "ark-bn254",
  "ark-circom",
@@ -1333,6 +1333,7 @@ dependencies = [
  "ark-std",
  "color-eyre",
  "num-bigint",
+ "num-integer",
  "rayon",
  "subroutines",
  "thiserror",
@@ -2453,11 +2454,9 @@ dependencies = [
  "auto_impl",
  "bitflags 2.5.0",
  "bitvec",
- "c-kzg",
  "enumn",
  "hashbrown 0.14.3",
  "hex",
- "once_cell",
 ]
 
 [[package]]
@@ -2816,7 +2815,7 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 [[package]]
 name = "solidity-verifiers"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/folding-schemes.git?branch=feature/solidity-decider-verifier#a45761a395d9a9a917c5a36d8cc8cddcd9541a87"
+source = "git+https://github.com/privacy-scaling-explorations/sonobe.git?branch=feature/solidity-decider-verifier#9c68076782017b0fe205574c894cf6b3e1b5204f"
 dependencies = [
  "ark-bn254",
  "ark-ec",

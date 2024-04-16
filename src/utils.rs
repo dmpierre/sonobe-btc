@@ -1,6 +1,5 @@
 use crate::BTCBlockCheckerFCircuit;
 use ark_bn254::{constraints::GVar, Bn254, Fr, G1Projective as Projective};
-use ark_crypto_primitives::sponge::poseidon::PoseidonConfig;
 use ark_grumpkin::{constraints::GVar as GVar2, Projective as Projective2};
 use ark_poly_commit::kzg10::VerifierKey as KZGVerifierKey;
 use folding_schemes::{
@@ -17,7 +16,6 @@ pub fn setup(
     circuit: BTCBlockCheckerFCircuit<Fr>,
 ) -> (
     ProverParams<Projective, Projective2, KZG<'static, Bn254>, Pedersen<Projective2>>,
-    PoseidonConfig<Fr>,
     KZGVerifierKey<Bn254>,
 ) {
     let mut rng = ark_std::test_rng();
@@ -40,7 +38,6 @@ pub fn setup(
             cs_params: kzg_pk.clone(),
             cf_cs_params: cf_pedersen_params,
         },
-        poseidon_config,
         kzg_vk,
     )
 }
