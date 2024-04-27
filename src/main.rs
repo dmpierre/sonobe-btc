@@ -25,7 +25,7 @@ use solidity_verifiers::{
     get_decider_template_for_cyclefold_decider,
     utils::get_function_selector_for_nova_cyclefold_verifier,
 };
-use solidity_verifiers::{Groth16Data, KzgData, NovaCyclefoldData};
+use solidity_verifiers::{Groth16Data, KzgData, NovaCycleFoldData};
 use std::{fs, marker::PhantomData, time::Instant};
 use utils::setup;
 mod utils;
@@ -129,14 +129,14 @@ fn main() {
         NOVA,
     >;
 
-    let n_blocks_checked = blocks_prepared.len();
+    let n_blocks_checked = blocks_prepared.len() / 20; // TMP rm '/20'
     let circuit = BTCBlockCheckerFCircuit::<Fr>::new(blocks_prepared.clone());
-    let (prover_params, poseidon_config, kzg_vk) = setup(circuit.clone());
+    let (fs_prover_params, kzg_vk) = setup(circuit.clone());
     let z_0 = vec![Fr::from(0)];
-    let mut nova = NOVA::init(&prover_params, circuit, z_0.clone()).unwrap();
+    let mut nova = NOVA::init(&fs_prover_params, circuit, z_0.clone()).unwrap();
 
     println!("Computing folds...");
-    let now = Instant::now();
+    let start = Instant::now();
     for i in 0..n_blocks_checked {
         let current_state = nova.z_i[0].into_bigint();
         if i % 10 == 0 {
@@ -144,13 +144,13 @@ fn main() {
         }
         nova.prove_step().unwrap();
     }
-    let elapsed = now.elapsed();
     println!(
         "Done folding. Checked {} blocks in: {:.2?}",
-        n_blocks_checked, elapsed
+        n_blocks_checked,
+        start.elapsed()
     );
 
-    let circuit = DeciderEthCircuit::<
+    let decider_circuit = DeciderEthCircuit::<
         Projective,
         GVar,
         Projective2,
@@ -163,23 +163,17 @@ fn main() {
 
     // decider setup
     println!("Starting setup...");
-    let now = Instant::now();
+    let start = Instant::now();
     let (g16_pk, g16_vk) =
-        Groth16::<Bn254>::circuit_specific_setup(circuit.clone(), &mut rng).unwrap();
-    let elapsed = now.elapsed();
-    println!("Setup done in: {:.2?}", elapsed);
+        Groth16::<Bn254>::circuit_specific_setup(decider_circuit.clone(), &mut rng).unwrap();
+    println!("Setup done in: {:.2?}", start.elapsed());
 
     // decider proof generation
     println!("Generating proof...");
-    let now = Instant::now();
-    let decider_pp = (
-        poseidon_config.clone(),
-        g16_pk,
-        prover_params.clone().cs_params,
-    );
+    let start = Instant::now();
+    let decider_pp = (g16_pk, fs_prover_params.cs_params.clone());
     let proof = DECIDER::prove(decider_pp, rng, nova.clone()).unwrap();
-    let elapsed = now.elapsed();
-    println!("Proof generated in: {:.2?}", elapsed);
+    println!("Proof generated in: {:.2?}", start.elapsed());
 
     // decider proof verification
     println!("Verifying proof...");
@@ -198,9 +192,9 @@ fn main() {
     let g16_data = Groth16Data::from(g16_vk);
     let kzg_data = KzgData::from((
         kzg_vk,
-        Some(prover_params.cs_params.powers_of_g[0..3].to_vec()),
+        fs_prover_params.cs_params.powers_of_g[0..3].to_vec(),
     ));
-    let nova_cyclefold_data = NovaCyclefoldData::from((g16_data, kzg_data, nova.z_0.len()));
+    let nova_cyclefold_data = NovaCycleFoldData::from((g16_data, kzg_data, nova.z_0.len()));
     let function_selector =
         get_function_selector_for_nova_cyclefold_verifier(nova.z_0.len() * 2 + 1);
 
@@ -216,17 +210,18 @@ fn main() {
     .unwrap();
 
     let decider_template = get_decider_template_for_cyclefold_decider(nova_cyclefold_data);
-    save_solidity("./NovaLightBTCClientDecider.sol", &decider_template);
-    fs::write("./solidity-calldata.calldata", calldata).unwrap();
 
+    // save smart contract
+    save_solidity("./NovaLightBTCClientDecider.sol", &decider_template.clone());
     // save calldata
+    fs::write("./solidity-calldata.calldata", calldata.clone()).unwrap();
 
-    // let nova_cyclefold_verifier_bytecode = compile_solidity(decider_template, "NovaDecider");
-    //
-    // let mut evm = Evm::default();
-    // let verifier_address = evm.create(nova_cyclefold_verifier_bytecode);
-    //
-    // let (_, output) = evm.call(verifier_address, calldata.clone());
-    // println!("Output: {:?}", output);
-    // assert_eq!(*output.last().unwrap(), 1);
+    let nova_cyclefold_verifier_bytecode = compile_solidity(decider_template, "NovaDecider");
+
+    let mut evm = Evm::default();
+    let verifier_address = evm.create(nova_cyclefold_verifier_bytecode);
+
+    let (_, output) = evm.call(verifier_address, calldata);
+    println!("Output: {:?}", output);
+    assert_eq!(*output.last().unwrap(), 1);
 }

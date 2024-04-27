@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 ark-r1cs-std = { git = "https://github.com/arnaucube/ark-r1cs-std-cherry-picked/" }
-folding-schemes = { git = "https://github.com/privacy-scaling-explorations/folding-schemes.git", branch="feature/solidity-decider-verifier" }
-solidity-verifiers = { git = "https://github.com/privacy-scaling-explorations/folding-schemes.git", package="solidity-verifiers", branch="feature/solidity-decider-verifier" }
+folding-schemes = { git = "https://github.com/privacy-scaling-explorations/sonobe.git", package="folding-schemes", branch="feature/solidity-decider-verifier", features=["light-test"] }
+solidity-verifiers = { git = "https://github.com/privacy-scaling-explorations/sonobe.git", package="solidity-verifiers", branch="feature/solidity-decider-verifier" }
 ark-light-bitcoin-client = { git = "https://github.com/dmpierre/ark-light-bitcoin-client.git" }
 ark-ff = "0.4.0"
 ark-relations = "0.4.0"
