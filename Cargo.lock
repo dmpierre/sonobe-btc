@@ -135,7 +135,7 @@ dependencies = [
 [[package]]
 name = "ark-circom"
 version = "0.1.0"
-source = "git+https://github.com/gakonst/ark-circom.git#170b10fc9ed182b5f72ecf379033dda023d0bf07"
+source = "git+https://github.com/arnaucube/circom-compat.git#48f2915b64a524ec5c4ff3856c0e9467a056db04"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
@@ -274,7 +274,7 @@ dependencies = [
 [[package]]
 name = "ark-light-bitcoin-client"
 version = "0.1.0"
-source = "git+https://github.com/dmpierre/ark-light-bitcoin-client.git?branch=main#d1d7c156d59acc75c726259d03e30d319ecf3e70"
+source = "git+https://github.com/dmpierre/ark-light-bitcoin-client.git#d1d7c156d59acc75c726259d03e30d319ecf3e70"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
@@ -1316,7 +1316,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "folding-schemes"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/folding-schemes.git?branch=feature/solidity-decider-verifier#724e4f3b8bf923d80041b974d196a6d52a2376f6"
+source = "git+https://github.com/privacy-scaling-explorations/sonobe.git?branch=feature/solidity-decider-verifier#87d3731413a5d71868ef442de5346483526a4c12"
 dependencies = [
  "ark-bn254",
  "ark-circom",
@@ -1333,6 +1333,7 @@ dependencies = [
  "ark-std",
  "color-eyre",
  "num-bigint",
+ "num-integer",
  "rayon",
  "subroutines",
  "thiserror",
@@ -2453,11 +2454,9 @@ dependencies = [
  "auto_impl",
  "bitflags 2.5.0",
  "bitvec",
- "c-kzg",
  "enumn",
  "hashbrown 0.14.3",
  "hex",
- "once_cell",
 ]
 
 [[package]]
@@ -2816,7 +2815,7 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 [[package]]
 name = "solidity-verifiers"
 version = "0.1.0"
-source = "git+https://github.com/privacy-scaling-explorations/folding-schemes.git?branch=feature/solidity-decider-verifier#724e4f3b8bf923d80041b974d196a6d52a2376f6"
+source = "git+https://github.com/privacy-scaling-explorations/sonobe.git?branch=feature/solidity-decider-verifier#87d3731413a5d71868ef442de5346483526a4c12"
 dependencies = [
  "ark-bn254",
  "ark-ec",
