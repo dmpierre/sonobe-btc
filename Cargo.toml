@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ark-r1cs-std = { git = "https://github.com/arnaucube/ark-r1cs-std-cherry-picked/" }
-folding-schemes = { git = "https://github.com/privacy-scaling-explorations/sonobe.git", package="folding-schemes", branch="feature/solidity-decider-verifier", features=["light-test"] }
-solidity-verifiers = { git = "https://github.com/privacy-scaling-explorations/sonobe.git", package="solidity-verifiers", branch="feature/solidity-decider-verifier" }
-ark-light-bitcoin-client = { git = "https://github.com/dmpierre/ark-light-bitcoin-client.git" }
+ark-r1cs-std = { git = "https://github.com/winderica/r1cs-std", branch="cherry-pick" }
+folding-schemes = { git = "https://github.com/privacy-scaling-explorations/sonobe.git", package="folding-schemes", branch="circom-external-inputs", features=["light-test"] }
+solidity-verifiers = { git = "https://github.com/privacy-scaling-explorations/sonobe.git", package="solidity-verifiers", branch="circom-external-inputs" }
+ark-light-bitcoin-client = { git = "https://github.com/dmpierre/ark-light-bitcoin-client.git", branch="feat/use-fp-vars-only" }
 ark-ff = "0.4.0"
 ark-relations = "0.4.0"
 serde_json = "1.0.114"
@@ -26,6 +26,6 @@ ark-poly-commit = "0.4.0"
 ark-groth16 = "0.4.0"
 
 [patch.crates-io]
-ark-r1cs-std = { git = "https://github.com/arnaucube/ark-r1cs-std-cherry-picked/" }
+ark-r1cs-std = { git = "https://github.com/winderica/r1cs-std", branch="cherry-pick" }
 ark-bn254 = { git = "https://github.com/arnaucube/ark-curves-cherry-picked", branch="cherry-pick"}
 ark-grumpkin = { git = "https://github.com/arnaucube/ark-curves-cherry-picked", branch="cherry-pick"}

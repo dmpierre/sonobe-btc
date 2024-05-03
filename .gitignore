@@ -1,3 +1,4 @@
 /target
 *.calldata
 *.sol
+*.txt
