@@ -274,7 +274,7 @@ dependencies = [
 [[package]]
 name = "ark-light-bitcoin-client"
 version = "0.1.0"
-source = "git+https://github.com/dmpierre/ark-light-bitcoin-client.git?branch=feat/use-fp-vars-only#db4dac0c3d009785be170fb785b90acde5ab2a79"
+source = "git+https://github.com/dmpierre/ark-light-bitcoin-client.git?branch=feat/use-fp-vars-only#e36213edd263850d1661175821146318f8872a92"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",

@@ -1,24 +1,17 @@
+use crate::utils::init_params;
 use ark_bn254::{constraints::GVar, Bn254, Fr, G1Projective as Projective};
-use ark_crypto_primitives::snark::SNARK;
 use ark_ff::PrimeField;
 use ark_groth16::Groth16;
 use ark_grumpkin::{constraints::GVar as GVar2, Projective as Projective2};
 use ark_light_bitcoin_client::{
-    gadgets::{
-        block_hash_eq_broken_hash::{BlockHashCompareBrokenHash, ComputeBrokenHash},
-        block_header_hash_gadget::BlockHeaderHashGadget,
-        calculate_target_gadget::BlockTargetGadget,
-        BTCBlockCheckerGadget,
-    },
-    get_block_hash, get_block_hash_field_element, get_target, read_blocks,
-    utils::{get_broken_hash, get_broken_hash_field_elements, Block, BlockVar},
+    gadgets::{block_hash_eq_broken_hash::ComputeBrokenHash, BTCBlockCheckerGadget},
+    get_block_hash_field_element, read_blocks,
+    utils::{get_broken_hash, get_broken_hash_field_elements, Block},
 };
-use ark_r1cs_std::{
-    alloc::AllocVar, eq::EqGadget, fields::fp::FpVar, R1CSVar, ToBytesGadget,
-    ToConstraintFieldGadget,
-};
+use ark_r1cs_std::fields::fp::FpVar;
 use ark_relations::r1cs::{ConstraintSystemRef, SynthesisError};
 use ark_std::rand;
+use folding_schemes::FoldingScheme;
 use folding_schemes::{
     commitment::{kzg::KZG, pedersen::Pedersen},
     folding::nova::{decider_eth::Decider as DeciderEth, Nova},
@@ -26,21 +19,12 @@ use folding_schemes::{
     Error,
 };
 use folding_schemes::{folding::nova::decider_eth::prepare_calldata, Decider as DeciderTrait};
-use folding_schemes::{folding::nova::decider_eth_circuit::DeciderEthCircuit, FoldingScheme};
-use num_bigint::BigUint;
-use num_traits::Num;
 use solidity_verifiers::{
-    evm::Evm, g16::Groth16VerifierKey, kzg::KZG10VerifierKey, utils::get_formatted_calldata,
-    NovaCycleFoldVerifierKey,
-};
-use solidity_verifiers::{
-    evm::{compile_solidity, save_solidity},
-    get_decider_template_for_cyclefold_decider,
+    evm::compile_solidity, get_decider_template_for_cyclefold_decider,
     utils::get_function_selector_for_nova_cyclefold_verifier,
 };
-use std::{cmp::Ordering, fs, marker::PhantomData, time::Instant};
-
-use crate::utils::init_params;
+use solidity_verifiers::{evm::Evm, NovaCycleFoldVerifierKey};
+use std::{fs, marker::PhantomData, time::Instant};
 mod utils;
 
 #[derive(Clone, Debug)]
@@ -51,7 +35,7 @@ pub struct BTCBlockCheckerFCircuit<F: PrimeField> {
 impl<F: PrimeField> FCircuit<F> for BTCBlockCheckerFCircuit<F> {
     type Params = ();
 
-    fn new(params: Self::Params) -> Result<Self, Error> {
+    fn new(_params: Self::Params) -> Result<Self, Error> {
         Ok(Self { _f: PhantomData })
     }
 
@@ -61,11 +45,11 @@ impl<F: PrimeField> FCircuit<F> for BTCBlockCheckerFCircuit<F> {
 
     fn step_native(
         &self,
-        i: usize,
+        _i: usize,
         z_i: Vec<F>,
         external_inputs: Vec<F>,
     ) -> Result<Vec<F>, folding_schemes::Error> {
-        // Compute block hash
+        // Compute block hash only, not checking pow
         let computed_block_hash = get_block_hash_field_element(&external_inputs);
 
         let new_z_i = vec![
@@ -110,26 +94,16 @@ impl<F: PrimeField> FCircuit<F> for BTCBlockCheckerFCircuit<F> {
 }
 
 fn main() {
-    let file = include_str!("./data/btc-blocks.json");
-    let (mut prev_block_hash, blocks) = read_blocks(3, 1, file);
-
-    let mut blocks_prepared = vec![];
+    let file = include_str!("./data/full.json");
+    let (first_block_hash, blocks) = read_blocks(842000, 1, file);
+    let mut block_headers_prepared = vec![];
     for batch in blocks.iter() {
-        let block_hashes =
-            serde_json::from_value::<Vec<String>>(batch.get("blockHashes").unwrap().clone())
-                .unwrap();
         let block_headers =
             serde_json::from_value::<Vec<Vec<u8>>>(batch.get("blockHeaders").unwrap().clone())
-                .unwrap();
-        for (block_hash, block_header) in block_hashes.iter().zip(block_headers) {
-            let block_hash_str = block_hash.to_string();
-            let block = Block {
-                block_header,
-                block_hash: block_hash_str.clone(),
-                prev_block_hash,
-            };
-            blocks_prepared.push(block.clone());
-            prev_block_hash = block_hash_str;
+                .unwrap()
+                .clone();
+        for header in block_headers {
+            block_headers_prepared.push(header);
         }
     }
 
@@ -155,9 +129,9 @@ fn main() {
         NOVA,
     >;
 
-    let n_blocks_checked = blocks_prepared.len();
+    let n_blocks_checked = block_headers_prepared.len();
     let circuit = BTCBlockCheckerFCircuit::<Fr>::new(()).unwrap();
-    let block_broken_hash = get_broken_hash(&blocks_prepared[0].prev_block_hash);
+    let block_broken_hash = get_broken_hash(&first_block_hash);
     let block_broken_hash_field_elements = get_broken_hash_field_elements::<Fr>(block_broken_hash);
 
     let z_0 = vec![
@@ -172,18 +146,17 @@ fn main() {
     let mut nova = NOVA::init(&fs_prover_params, circuit.clone(), z_0.clone()).unwrap();
 
     println!("Computing folds...");
-    for (i, block) in blocks_prepared.iter().enumerate() {
+    for (i, header) in block_headers_prepared.iter().enumerate() {
         let current_state = nova.z_i[0].into_bigint();
         if i % 10 == 0 {
             println!("--- At block: {}/{} ---", current_state, n_blocks_checked);
         }
         // header is 80 field elements
-        let mut header = vec![];
-        for h in block.block_header.clone().into_iter() {
-            header.push(Fr::from(h));
+        let mut header_field_elements = vec![];
+        for h in header {
+            header_field_elements.push(Fr::from(*h));
         }
-
-        nova.prove_step(header).unwrap();
+        nova.prove_step(header_field_elements).unwrap();
     }
 
     let rng = rand::rngs::OsRng;
@@ -236,6 +209,7 @@ fn main() {
     let verifier_address = evm.create(nova_cyclefold_verifier_bytecode);
     let (_, output) = evm.call(verifier_address, calldata.clone());
     assert_eq!(*output.last().unwrap(), 1);
+    println!("EVM Ok: {}", verified);
 
     // save smart contract and the calldata
     fs::write(
