@@ -2,3 +2,4 @@
 *.calldata
 *.sol
 *.txt
+*.json
