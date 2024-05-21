@@ -6,6 +6,8 @@
 
 [Transaction trustlessly verifying 100k bitcoin blocks on Optimism](https://optimistic.etherscan.io/tx/0x1fc40181d6be767985aa13d8a5219ce85ce4d63d6b0e02a4942a7accf6027e48)
 
+> :warning: This is an experimental project, using non-audited libraries. Use with care.
+
 This project is an implementation of an on-chain bitcoin light client, running with [sonobe](https://github.com/privacy-scaling-explorations/sonobe). Sonobe is a folding schemes library, built with arkworks and on-chain (evm) verification capability. This project leverages sonobe to build a trustless light client for bitcoin: we use [nova](https://eprint.iacr.org/2021/370) to verify bitcoin's proof of work over 100k blocks and verify the zkSNARK IVC proof on chain.
 
 # Details
