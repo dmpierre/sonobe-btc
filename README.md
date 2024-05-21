@@ -1,7 +1,7 @@
 # Sonobe BTC
 
 <p align="center">
-  <img src="" width="30%" height="30%" />
+  <img src="https://github.com/dmpierre/sonobe-btc/assets/23149200/782e7140-cc8e-4a9c-8a31-327a0ae84a5b" width="30%" height="30%" />
 </p>
 
 [Transaction trustlessly verifying 100k bitcoin blocks on Optimism](https://optimistic.etherscan.io/tx/0x1fc40181d6be767985aa13d8a5219ce85ce4d63d6b0e02a4942a7accf6027e48)
