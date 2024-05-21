@@ -1,4 +1,5 @@
 /target
 *.calldata
 *.txt
+!remappings.txt
 *.json
