@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import {Script, console} from "forge-std/Script.sol";
 import { NovaDecider } from "../src/BTCLightClientNovaVerifier.sol";
 import { BTCLightClient } from "../src/BTCLightClient.sol";
+import "forge-std/console.sol";
 
 contract DeployAndVerify is Script {
 
@@ -22,13 +23,16 @@ contract DeployAndVerify is Script {
     NovaDecider decider;
     BTCLightClient public btcLightClient;
 
-    function setUp() public {
+    function run() public {
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+     
+        vm.startBroadcast(deployerPrivateKey);
         decider = new NovaDecider();
-        btcLightClient = new BTCLightClient(address(novaDecider));
+        btcLightClient = new BTCLightClient(address(decider));
+        btcLightClient.setBlocksVerified(i_z0_zi, U_i_cmW_U_i_cmE, U_i_u_u_i_u_r, U_i_x_u_i_cmW, u_i_x_cmT, pA, pB, pC, challenge_W_challenge_E_kzg_evals, kzg_proof);
+        vm.stopBroadcast();
+
+        console.log("Blocks verified: ", btcLightClient.blocksVerified());
     }
 
-    function run() public {
-        vm.broadcast();
-        btcLightClient.setBlocksVerified(i_z0_zi, U_i_cmW_U_i_cmE, U_i_u_u_i_u_r, U_i_x_u_i_cmW, u_i_x_cmT, pA, pB, pC, challenge_W_challenge_E_kzg_evals, kzg_proof);
-    }
 }
