@@ -6,7 +6,7 @@ use ark_grumpkin::{constraints::GVar as GVar2, Projective as Projective2};
 use ark_light_bitcoin_client::{
     gadgets::{block_hash_eq_broken_hash::ComputeBrokenHash, BTCBlockCheckerGadget},
     get_block_hash_field_element, read_blocks,
-    utils::{get_broken_hash, get_broken_hash_field_elements, Block},
+    utils::{get_broken_hash, get_broken_hash_field_elements},
 };
 use ark_r1cs_std::fields::fp::FpVar;
 use ark_relations::r1cs::{ConstraintSystemRef, SynthesisError};

@@ -1,15 +1,12 @@
 use std::time::Instant;
 
-use crate::BTCBlockCheckerFCircuit;
 use ark_bn254::{constraints::GVar, Bn254, Fr, G1Projective as G1};
 use ark_crypto_primitives::snark::SNARK;
 use ark_groth16::Groth16;
 use ark_groth16::ProvingKey;
 use ark_groth16::VerifyingKey as G16VerifierKey;
 use ark_grumpkin::{constraints::GVar as GVar2, Projective as G2};
-use ark_light_bitcoin_client::utils::Block;
 use ark_poly_commit::kzg10::VerifierKey as KZGVerifierKey;
-use ark_r1cs_std::fields::fp::FpVar;
 use ark_std::rand;
 use folding_schemes::folding::nova::decider_eth_circuit::DeciderEthCircuit;
 use folding_schemes::folding::nova::Nova;
@@ -24,7 +21,6 @@ use folding_schemes::{
     frontend::FCircuit,
     transcript::poseidon::poseidon_test_config,
 };
-use num_traits::Zero;
 
 pub fn init_test_prover_params<FC: FCircuit<Fr, Params = ()>>() -> (
     ProverParams<G1, G2, KZG<'static, Bn254>, Pedersen<G2>>,
