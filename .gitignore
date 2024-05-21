@@ -1,5 +1,4 @@
 /target
 *.calldata
-*.sol
 *.txt
 *.json
