@@ -14,6 +14,8 @@ Running the light client has been relatively cheap. Small costs breakdown:
 - 33h of compute on an aws ec2 c6i.4xlarge instance (16 cores, 32gb RAM) = 26,64 USD
 - Contract deployment + verification on Optimism = 0,91 USD. Transaction details [here](https://optimistic.etherscan.io/address/0x83c2acbbcc5e223be030288b5e5afb0b80e96f3f).
 
+Note that we deactivated sonobe's `light-test` feature when running proving. Be mindful if you are running `main.rs`: the repo's `Cargo.toml` has this feature activated.
+
 # How to check the verified starting and current btc block tip on chain
 
 We fetch the starting and current block tip within the `FetchLightClientState.s.sol` `forge` script. We obtain two hashes, each sliced in two 16 bytes integers. Run a quick check with python:
