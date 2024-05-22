@@ -94,8 +94,8 @@ impl<F: PrimeField> FCircuit<F> for BTCBlockCheckerFCircuit<F> {
 }
 
 fn main() {
-    let file = include_str!("./data/full.json");
-    let (first_block_hash, blocks) = read_blocks(842000, 1, file);
+    let file = include_str!("./data/btc-blocks.json");
+    let (first_block_hash, blocks) = read_blocks(80, 1, file);
     let mut block_headers_prepared = vec![];
     for batch in blocks.iter() {
         let block_headers =
